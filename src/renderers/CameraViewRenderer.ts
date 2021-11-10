@@ -105,9 +105,9 @@ export class CameraViewRenderer implements ICameraViewRenderer {
                     "video": videoSettings
                 };
 
+                this.video.play();
                 navigator.mediaDevices.getUserMedia(hint).then(async (stream) => {
                     this.video.srcObject = stream;
-                    this.video.play();
                     this.video = await new Promise<HTMLVideoElement>((resolve, reject) => {
                         this.video.onloadedmetadata = () => resolve(this.video);
                     }).then((value) => {
