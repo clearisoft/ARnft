@@ -168,9 +168,9 @@ export default class NFTWorker {
                                        return;                                      
                                     } 
                                     if (loader) {
-                                    loader.parentElement.removeChild(loader)
+                                        loader.parentElement.removeChild(loader)
                                     }
-                                }, 2000)
+                                }, 0)
                             }
                         }
                         break;
