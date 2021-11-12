@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>AR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=0.5, maximum-scale=1">
+    <link rel="stylesheet" href="css/nft-style.css">
+</head>
+
+<body>
+    <script src="js/third_party/three.js/three.min.js"></script>
+    <script src="js/ARnftThreejs.js?abc"></script>
+    <script src="../dist/ARnft.js?def"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+
+    <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
+        <div style="text-align: center;">
+            <button style="background: url(Data/camera.png); width: 100px; height: 100px; border-style: none" onclick="start()"></button>
+        </div>
+    </div>
+
+    <script>
+        function start() {
+            var entities = [
+                {name: '水塘', markerUrl: "examples/DataNFT/水塘", displayUrl: 'Data/videos/rocket.mp4',
+                    scale: 180, position: {x: 100, y: 100}, rotate:{x:0, y:0, z:0}},
+                {name: 'pinball', markerUrl: "examples/DataNFT/pinball", displayUrl: 'Data/models/Bee.glb',
+                    scale: 5, position: {x: 0, y: 0}, rotate:{x:-Math.PI/2, y:0, z:-Math.PI}},
+                {name: '泡茶', markerUrl: "examples/DataNFT/泡茶", displayUrl: 'Data/aframe-k.png',
+                    scale: 180, position: {x: 0, y: 0}, rotate:{x:0, y:0, z:0}},
+            ];
+            ARnft.ARnft.initWithEntities(640, 480, entities, 'config-wc.json', false).then((nft) => {
+                document.addEventListener('containerEvent', function(b) {
+                    let canvas = document.getElementById('canvas');
+                    let fov = 0.8 * 180 / Math.PI;
+                    let ratio = window.clientWidth / window.clientHeight;
+                    let config = {
+                        "renderer": {
+                            "alpha": true,
+                            "antialias": true,
+                            "context": null,
+                            "precision": "mediump",
+                            "premultipliedAlpha": true,
+                            "stencil": true,
+                            "depth": true,
+                            "logarithmicDepthBuffer": true
+                        },
+                        "camera": {
+                            "fov": fov,
+                            "ratio": ratio,
+                            "near": 0.01,
+                            "far": 1000
+                        }
+                    };
+                    let sceneThreejs = new ARnftThreejs.SceneRendererTJS(config, canvas, nft.uuid, true);
+                    sceneThreejs.initRenderer();
+                    const renderer = sceneThreejs.getRenderer();
+                    const scene = sceneThreejs.getScene();
+                    renderer.outputEncoding = THREE.sRGBEncoding;
+                    renderer.physicallyCorrectLights = true;
+                    let directionalLight = new THREE.DirectionalLight('#fff', 0.4);
+                    directionalLight.position.set(0.5, 0, 0.866);
+                    scene.add(directionalLight);
+                    let nftAddTJS = new ARnftThreejs.NFTaddTJS(nft.uuid);
+
+                    for(const entry of entities) {
+                        if (entry.displayUrl.endsWith('.mp4')) {
+                            var id = 'video_' + Math.round(Math.random() * 100000000000);
+                            var e = $('<video />', {id: id, type: 'video/mp4'});
+                            e.appendTo($('body'));
+                            $('#' + id).hide();
+                            $('#' + id)[0].setAttribute('webkit-playsinline', 'webkit-playsinline');
+                            $('#' + id)[0].setAttribute('playsinline', 'playsinline');
+                            nftAddTJS.addVideo(id, entry.name, entry.scale, false, function (model) {
+                                $('#' + id)[0].src = entry.displayUrl;
+
+                                model.position.x += entry.position.x;
+                                model.position.y += entry.position.y;
+                                model.rotation.x = entry.rotate.x;
+                                model.rotation.y = entry.rotate.y;
+                                model.rotation.z = entry.rotate.z;
+                            });
+                            document.addEventListener('getMatrixGL_RH-' + nft.uuid + '-' + entry.name, function () {
+                                $('#' + id).show()
+                            });
+                            document.addEventListener('nftTrackingLost-' + nft.uuid + '-' + entry.name, function () {
+                                $('#' + id).hide()
+                            });
+                        } else if (entry.displayUrl.endsWith('.glb')) {
+                            var action = null;
+                            nftAddTJS.addModel(entry.displayUrl, entry.name, entry.scale, false, function(model, anim) {
+                                model.position.x += entry.position.x;
+                                model.position.y += entry.position.y;
+                                model.rotation.x = entry.rotate.x;
+                                model.rotation.y = entry.rotate.y;
+                                model.rotation.z = entry.rotate.z;
+
+                                try {
+                                    entry.mixer = new THREE.AnimationMixer(model);
+                                    entry.mixer.timeScale = 1;
+                                    action = entry.mixer.clipAction(anim);
+                                    entry.clock = new THREE.Clock();
+                                } catch(e) {
+                                }
+                            });
+
+                            document.addEventListener('getMatrixGL_RH-' + nft.uuid + '-' + entry.name, function() {
+                                if (action) {
+                                    action.play();
+                                }
+                            });
+                            document.addEventListener('nftTrackingLost-' + nft.uuid + '-' + entry.name, function() {
+                                if (action) {
+                                    action.stop();
+                                }
+                            });
+                        } else {
+                            nftAddTJS.addImage(entry.displayUrl, entry.name, 0xbbbbff, entry.scale, false, function(model) {
+                                model.position.x += entry.position.x;
+                                model.position.y += entry.position.y;
+                                model.rotation.x = entry.rotate.x;
+                                model.rotation.y = entry.rotate.y;
+                                model.rotation.z = entry.rotate.z;
+                            });
+                        }
+                    }
+
+                    const tick = () => {
+                        sceneThreejs.draw();
+                        window.requestAnimationFrame(tick);
+
+                        for(const entry of entities) {
+                            if (entry.clock) {
+                                entry.mixer.update(entry.clock.getDelta() * entry.mixer.timeScale);
+                            }
+                        }
+                    };
+                    tick();
+                })
+            }).catch ((error) => {
+                console.log(error)
+            });
+        }
+    </script>
+</body>
+
+</html>
