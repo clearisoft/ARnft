@@ -43,6 +43,7 @@ export default class NFTWorker {
     private markerURL: any;
 
     private _processing: boolean = false;
+    private busyUntil: number = 0;
 
     private vw: number;
     private vh: number;
@@ -183,15 +184,20 @@ export default class NFTWorker {
                     }
                     case 'found': {
                         this.found(msg)
-                        this._processing = false;
+                        this._processing = false
+                        this.busyUntil = new Date().getTime() + 500
                         break
                     }
                     case 'not found': {
-                        this.found(null)
-                        let that = this;
-                        setTimeout(function() {
-                            that._processing = false;
-                        }, 250)
+                        if (new Date().getTime() > this.busyUntil) {
+                            this.found(null)
+                            let that = this
+                            setTimeout(function() {
+                                that._processing = false
+                            }, 250)
+                        } else {
+                            this._processing = false
+                        }
                         break
                     }
                     case 'error': {

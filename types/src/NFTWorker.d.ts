@@ -2,6 +2,7 @@ export default class NFTWorker {
     private worker;
     private markerURL;
     private _processing;
+    private busyUntil;
     private vw;
     private vh;
     private uuid;
