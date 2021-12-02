@@ -72,9 +72,8 @@
                             $('#' + id).hide();
                             $('#' + id)[0].setAttribute('webkit-playsinline', 'webkit-playsinline');
                             $('#' + id)[0].setAttribute('playsinline', 'playsinline');
+                            $('#' + id)[0].setAttribute('src', entry.displayUrl);
                             nftAddTJS.addVideo(id, entry.name, entry.scale, false, function (model) {
-                                $('#' + id)[0].src = entry.displayUrl;
-
                                 model.position.x += entry.position.x;
                                 model.position.y += entry.position.y;
                                 model.rotation.x = entry.rotate.x;
