@@ -10,8 +10,8 @@
 
 <body>
     <script src="js/third_party/three.js/three.min.js"></script>
-    <script src="js/ARnftThreejs.js?abc"></script>
-    <script src="../dist/ARnft.js?def"></script>
+    <script src="js/ARnftThreejs.js?abcd"></script>
+    <script src="../dist/ARnft.js?defg"></script>
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
 
     <div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);">
@@ -66,7 +66,7 @@
 
                     for(const entry of entities) {
                         if (entry.displayUrl.endsWith('.mp4')) {
-                            var id = 'video_' + Math.round(Math.random() * 100000000000);
+                            var id = 'video_' + entry.name;
                             var e = $('<video />', {id: id, type: 'video/mp4'});
                             e.appendTo($('body'));
                             $('#' + id).hide();
@@ -80,11 +80,11 @@
                                 model.rotation.y = entry.rotate.y;
                                 model.rotation.z = entry.rotate.z;
                             });
-                            document.addEventListener('getMatrixGL_RH-' + nft.uuid + '-' + entry.name, function () {
-                                $('#' + id).show()
+                            document.addEventListener('getMatrixGL_RH-' + nft.uuid + '-' + entry.name, function (event) {
+                                $('#video_' + event.detail.name).show()
                             });
-                            document.addEventListener('nftTrackingLost-' + nft.uuid + '-' + entry.name, function () {
-                                $('#' + id).hide()
+                            document.addEventListener('nftTrackingLost-' + nft.uuid + '-' + entry.name, function (event) {
+                                $('#video_' + event.detail.name).hide()
                             });
                         } else if (entry.displayUrl.endsWith('.glb')) {
                             var action = null;
@@ -104,12 +104,12 @@
                                 }
                             });
 
-                            document.addEventListener('getMatrixGL_RH-' + nft.uuid + '-' + entry.name, function() {
+                            document.addEventListener('getMatrixGL_RH-' + nft.uuid + '-' + entry.name, function(event) {
                                 if (action) {
                                     action.play();
                                 }
                             });
-                            document.addEventListener('nftTrackingLost-' + nft.uuid + '-' + entry.name, function() {
+                            document.addEventListener('nftTrackingLost-' + nft.uuid + '-' + entry.name, function(event) {
                                 if (action) {
                                     action.stop();
                                 }
