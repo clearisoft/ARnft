@@ -23,12 +23,12 @@
     <script>
         function start() {
             var entities = [
-                {name: '水塘', markerUrl: "examples/DataNFT/水塘", displayUrl: 'Data/videos/rocket.mp4',
-                    scale: 180, position: {x: 100, y: 100}, rotate:{x:0, y:0, z:0}},
+                {name: '水塘', markerUrl: "examples/DataNFT/水塘", displayUrl: 'Data/videos/firework.mp4', alpha: true,
+                    scale: 180, position: {x: 0, y: 0}, rotate:{x:0, y:0, z:0}},
                 // {name: 'pinball', markerUrl: "examples/DataNFT/pinball", displayUrl: 'Data/models/Bee.glb',
                 //     scale: 5, position: {x: 0, y: 0}, rotate:{x:-Math.PI/2, y:0, z:-Math.PI}},
-                {name: '泡茶', markerUrl: "examples/DataNFT/泡茶", displayUrl: 'Data/pikachu.gif',
-                    scale: 250, position: {x: 0, y: 0}, rotate:{x:0, y:0, z:0}},
+                // {name: '泡茶', markerUrl: "examples/DataNFT/泡茶", displayUrl: 'Data/pikachu.gif',
+                //     scale: 250, position: {x: 0, y: 0}, rotate:{x:0, y:0, z:0}},
             ];
             ARnft.ARnft.initWithEntities(640, 480, entities, 'config-wc.json', false).then((nft) => {
                 document.addEventListener('containerEvent', function(b) {
@@ -73,7 +73,7 @@
                             $('#' + id)[0].setAttribute('webkit-playsinline', 'webkit-playsinline');
                             $('#' + id)[0].setAttribute('playsinline', 'playsinline');
                             $('#' + id)[0].setAttribute('src', entry.displayUrl);
-                            nftAddTJS.addVideo(id, entry.name, entry.scale, false, function (model) {
+                            nftAddTJS.addVideo(id, entry.name, entry.alpha, entry.scale, false, function (model) {
                                 model.position.x += entry.position.x;
                                 model.position.y += entry.position.y;
                                 model.rotation.x = entry.rotate.x;

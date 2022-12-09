@@ -185,7 +185,7 @@ export default class NFTWorker {
                     case 'found': {
                         this.found(msg)
                         this._processing = false
-                        this.busyUntil = new Date().getTime() + 500
+                        this.busyUntil = new Date().getTime() + 1000
                         break
                     }
                     case 'not found': {
